@@ -4,6 +4,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import axios from "axios";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +30,10 @@ type Station = {
 
 type StationsResponse = {
         stations: Station[];
+};
+
+type ApiMessage = {
+    message?: string;
 };
 
 export default function StationsPage() {
@@ -56,14 +62,19 @@ export default function StationsPage() {
 
     const handleCreateStation = async () => {
         try {
-            await api.post("/stations/create", { name, 
+            const response = await api.post<ApiMessage>("/stations/create", { name,
                 latitude: Number(latitude), longitude: Number(longitude) });
             setName("");
             setLatitude("");
             setLongitude("");
+            toast.success(response.data.message || "Created successfully");
             loadStations();
-        } catch (err) {
-            console.error("Error creating station:", err);
+        } catch (err: unknown) {
+            if (axios.isAxiosError<ApiMessage>(err)) {
+                toast.error(err.response?.data?.message || "Failed to create station");
+                return;
+            }
+            toast.error("Failed to create station");
         }
     }
     return (

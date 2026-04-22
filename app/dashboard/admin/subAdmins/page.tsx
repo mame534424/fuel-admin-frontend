@@ -4,11 +4,12 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import axios from "axios";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
     Table,
     TableBody,
@@ -17,7 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { MapPinned, Plus, SatelliteDish } from "lucide-react";
+import { MapPinned, Plus } from "lucide-react";
 
 type list = {
         id: string;
@@ -27,6 +28,10 @@ type list = {
 
 type subAdminResponse = {
         subAdmins: list[];
+};
+
+type ApiMessage = {
+    message?: string;
 };
 
 export default function SubAdminPage() {
@@ -56,13 +61,18 @@ export default function SubAdminPage() {
 
     const handleSubAdminCreation = async () => {
         try {
-            await api.post("/admin/subadmin", { email, username: user, password });
+            const response = await api.post<ApiMessage>("/admin/subadmin", { email, username: user, password });
             setEmail("");
             setUsername("");
             setPassword("");
+            toast.success(response.data.message || "Created successfully");
             loadStations();
-        } catch (err: any) {
-        console.log("Backend says:", err.response?.data.message);
+        } catch (err: unknown) {
+            if (axios.isAxiosError<ApiMessage>(err)) {
+                toast.error(err.response?.data?.message || "Failed to create sub-admin");
+                return;
+            }
+            toast.error("Failed to create sub-admin");
         }
     }
     
