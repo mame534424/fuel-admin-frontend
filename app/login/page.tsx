@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import api from "../../lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Flame, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -23,47 +29,69 @@ export default function LoginPage() {
             else if(user.role === "subAdmin"){
                 router.push("/dashboard/manager");
             }
-        } catch (error:any) {
-            if (error.response) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response) {
                 console.error("Login error response:", error.response.data);
-                alert(error.response.data.message || "Login failed");
+                alert((error.response.data as { message?: string }).message || "Login failed");
             } else {
             console.error("Login error:", error);
         }} 
     };
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded shadow">
-                <h1>
-                    Admin Login
-                </h1>
-                <div className="space-y-4">
+        <div className="fuel-canvas relative flex min-h-screen items-center justify-center px-4 py-10">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgb(245_158_11/0.16),transparent_40%)]" />
+
+            <Card className="relative w-full max-w-md border-border/70 bg-card/90 shadow-xl backdrop-blur-sm">
+                <CardHeader className="space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-primary/15 p-2 text-primary">
+                            <Flame className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-2xl tracking-tight">Fuel Admin Login</CardTitle>
+                            <CardDescription>Access station control and bookings</CardDescription>
+                        </div>
+                    </div>
+                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs text-muted-foreground">
+                        <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                        Secure staff access only
+                    </div>
+                </CardHeader>
+
+                <CardContent>
+                    <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
-                        <input
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring focus:border-blue-300"
+                            className="mt-1"
+                            placeholder="name@fuelco.com"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
-                        <input
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 mt-1 border rounded focus:outline-none focus:ring focus:border-blue-300"
+                            className="mt-1"
+                            placeholder="Enter your password"
                         />
                     </div>
-                    <button
+
+                    <Button
                         onClick={handleLogin}
-                        className="w-full px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring"
+                        className="w-full"
                     >
-                        Login
-                    </button>
+                        Sign In
+                    </Button>
                 </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/dist/client/components/navigation";
+import ThemeToggle from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { LogOut, UserRound } from "lucide-react";
 
 export default function Navbar() {
     const router = useRouter();
@@ -15,16 +17,30 @@ export default function Navbar() {
 
 
     return (
-        <header className="h-16 border-b flex items-center justify-between px-6 bg-white">
-            <h2 className="font-semibold">
-                Welcome {user?.email}
-            </h2>
-            <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-               logout 
-            </button>
+        <header className="sticky top-0 z-20 h-16 border-b border-border/70 bg-card/80 backdrop-blur-md">
+            <div className="flex h-full items-center justify-between px-4 md:px-6">
+                <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-primary/10 p-2 text-primary">
+                        <UserRound className="h-4 w-4" />
+                    </div>
+                    <div className="leading-tight">
+                        <h2 className="text-sm font-medium text-muted-foreground">Signed in as</h2>
+                        <p className="text-sm font-semibold tracking-tight">{user?.email}</p>
+                    </div>
+                </div>
 
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Button
+                        onClick={handleLogout}
+                        variant="destructive"
+                        size="sm"
+                        className="gap-2"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                    </Button>
+                </div>
+            </div>
         </header>
     )}

@@ -1,8 +1,14 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export default function MetricCard({ title, value }: { title: string; value: number }) {
     return (
-        <div className="bg-white shadow rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-            <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
-        </div>
+        <Card className="border-border/70 bg-card/90 shadow-sm">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
+            </CardContent>
+        </Card>
     );
 }

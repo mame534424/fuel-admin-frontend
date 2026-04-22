@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children, role }: Props) {
     const { user, hydrated,loadAuth,token } = useAuthStore();
     useEffect(() => {
         loadAuth();
-    }, []);
+    }, [loadAuth]);
     
     useEffect(() => {
         if (!hydrated) return; // wait for hydration to complete

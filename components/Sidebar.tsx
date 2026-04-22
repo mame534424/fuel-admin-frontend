@@ -2,46 +2,58 @@
 
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
+import { Gauge, LayoutDashboard, MapPinned, ShieldCheck, ClipboardList, Fuel } from "lucide-react";
 
 export default function Sidebar() {
     const { user } = useAuthStore();
     const role = user?.role || { role: null };
 
     return (
-        <aside className="w-64 min-h-screen bg-black text-white p-5">
-            <h1 className="text-xl font-bold mb-8">
-                Fuel Panel
-            </h1>
-            <nav className="space-y-4">
+        <aside className="fuel-canvas hidden w-72 min-h-screen border-r border-border/70 bg-card/90 p-5 text-card-foreground md:block">
+            <div className="mb-8 rounded-xl border border-border/70 bg-background/70 p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-accent/20 p-2 text-accent-foreground dark:text-accent">
+                        <Gauge className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-lg font-bold tracking-tight">Fuel Command</h1>
+                        <p className="text-xs text-muted-foreground">Management Console</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav className="space-y-2 text-sm">
                 {role === "admin" && (
                     <>
-                         <Link href="/dashboard/admin">
+                         <Link href="/dashboard/admin" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <LayoutDashboard className="h-4 w-4" />
                         Dashboard
                         </Link>
-                        <br />
-                        <Link href="/dashboard/admin/stations">
+                        <Link href="/dashboard/admin/stations" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <MapPinned className="h-4 w-4" />
                         Stations
                         </Link>
-                        <br />
-                        <Link href="/dashboard/admin/subadmins">
+                        <Link href="/dashboard/admin/subadmins" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <ShieldCheck className="h-4 w-4" />
                         Sub Admins
                         </Link>
-                        <br />
-                        <Link href="/dashboard/admin/bookings">
+                        <Link href="/dashboard/admin/bookings" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <ClipboardList className="h-4 w-4" />
                         Bookings
                         </Link>
                     </>)}
                 {role === "subAdmin" && (
                     <>
-                        <Link href="/dashboard/manager">
+                        <Link href="/dashboard/manager" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <LayoutDashboard className="h-4 w-4" />
                         Dashboard
                         </Link>
-                        <br />
-                        <Link href="/dashboard/manager/fuel">
+                        <Link href="/dashboard/manager/fuel" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <Fuel className="h-4 w-4" />
                         Fuel
                         </Link>
-                        <br />
-                        <Link href="/dashboard/manager/bookings">
+                        <Link href="/dashboard/manager/bookings" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <ClipboardList className="h-4 w-4" />
                         Queue
                         </Link>
                     </>)
