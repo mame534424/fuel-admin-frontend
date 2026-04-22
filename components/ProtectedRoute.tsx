@@ -15,21 +15,31 @@ export default function ProtectedRoute({ children, role }: Props) {
     }, []);
     
     useEffect(() => {
-        if(!hydrated) return; // wait for auth state to load
-        
+        if (!hydrated) return; // wait for hydration to complete
 
-        if (!user) {
-            router.push("/login");
-        } else if (role && user.role !== role) {
-            router.push("/login");
+        if (!token || !user) {
+        router.replace("/login");
+        return;
         }
-    }, [user, hydrated, token, role]);
+
+            if (role && user.role !== role) {
+        router.replace("/login");
+    }
+    }, [user, hydrated, token, role,router]);
     // loading spinner
    
 
-    if (!hydrated || !token) return <div className="flex items-center justify-center min-h-screen">
-        <div className="loader">Loading...</div>
-    </div>;
-    return <>{children}</>;
+    
+
+  // 🔒 No token yet = wait (avoid flashing dashboard)
+  if (!token || !user) {
+    return null;
+  }
+
+  // 🔒 Wrong role = wait while redirecting
+  if (role && user.role !== role) {
+    return null;
+  }
+  return <>{children}</>;
 
 }

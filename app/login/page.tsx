@@ -21,7 +21,7 @@ export default function LoginPage() {
                 router.push("/dashboard/admin");
             }
             else if(user.role === "subAdmin"){
-                router.push("/manager/dashboard");
+                router.push("/dashboard/manager");
             }
         } catch (error:any) {
             if (error.response) {
