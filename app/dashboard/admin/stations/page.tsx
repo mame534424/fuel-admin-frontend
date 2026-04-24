@@ -24,7 +24,7 @@ import { MapPinned, Plus, SatelliteDish } from "lucide-react";
 type Station = {
         id: string;
         name: string;
-        active: boolean;
+        isActive: boolean;
         ownerId: string | null;
 };
 
@@ -37,10 +37,11 @@ type ApiMessage = {
 };
 
 export default function StationsPage() {
-        const [stations, setStations] = useState<Station[]>([]);
+    const [stations, setStations] = useState<Station[]>([]);
     const [name, setName] = useState("");
     const [latitude, setLatitude] = useState("");
     const [longitude, setLongitude] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
         
     const loadStations = async () => {
         const res = await api.get<StationsResponse>("/admin/stations");
@@ -61,6 +62,7 @@ export default function StationsPage() {
   }, []);
 
     const handleCreateStation = async () => {
+        setIsSubmitting(true);
         try {
             const response = await api.post<ApiMessage>("/stations/create", { name,
                 latitude: Number(latitude), longitude: Number(longitude) });
@@ -76,7 +78,24 @@ export default function StationsPage() {
             }
             toast.error("Failed to create station");
         }
+        finally { setIsSubmitting(false);
+        }
+        
     }
+    const handleToggleStatus=async(stationId:string, isActive:boolean)=>{
+        try {
+            const res=await api.patch(`/admin/${stationId}/toggle-status`,
+                {isActive: !isActive }
+            );
+            toast.success(res.data.message || "Station status updated successfully");
+            console.log("Station status toggled:", res.data);
+            loadStations();
+        } catch (error) {
+            console.error("Error toggling station status:", error);
+            toast.error("Failed to toggle station status");
+        }
+    };
+
     return (
         <ProtectedRoute role="admin">
             <DashboardLayout>
@@ -128,9 +147,12 @@ export default function StationsPage() {
                                 />
                             </div>
                             <div className="flex items-end">
-                                <Button onClick={handleCreateStation} className="w-full gap-2">
+                                <Button 
+                                onClick={handleCreateStation}
+                                disabled={isSubmitting}
+                                 className="w-full gap-2">
                                     <Plus className="h-4 w-4" />
-                                    Create Station
+                                    {isSubmitting ? "Creating..." : "Create Station"}
                                 </Button>
                             </div>
                         </CardContent>
@@ -155,11 +177,14 @@ export default function StationsPage() {
                                         <TableRow key={station.id}>
                                             <TableCell className="font-medium">{station.name}</TableCell>
                                             <TableCell>
-                                                {station.active ? (
+                                                <Button variant="outline" size="sm" onClick={() => handleToggleStatus(station.id, station.isActive)}>
+                                                     {station.isActive ? (
                                                     <Badge variant="success">Active</Badge>
                                                 ) : (
                                                     <Badge variant="warning">Inactive</Badge>
                                                 )}
+                                                </Button>
+                                               
                                             </TableCell>
                                             <TableCell>{station.ownerId}</TableCell>
                                             <TableCell>

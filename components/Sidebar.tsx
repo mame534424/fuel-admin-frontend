@@ -41,6 +41,10 @@ export default function Sidebar() {
                         <ClipboardList className="h-4 w-4" />
                         Bookings
                         </Link>
+                        <Link href="/dashboard/admin/assignments" className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                        <Fuel className="h-4 w-4" />
+                        Manager Assignments
+                        </Link>
                     </>)}
                 {role === "subAdmin" && (
                     <>
