@@ -26,6 +26,7 @@ type Station = {
         name: string;
         isActive: boolean;
         ownerId: string | null;
+        code: string;
 };
 
 type StationsResponse = {
@@ -42,6 +43,7 @@ export default function StationsPage() {
     const [latitude, setLatitude] = useState("");
     const [longitude, setLongitude] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [shortcode, setShortcode] = useState("");
         
     const loadStations = async () => {
         const res = await api.get<StationsResponse>("/admin/stations");
@@ -65,10 +67,11 @@ export default function StationsPage() {
         setIsSubmitting(true);
         try {
             const response = await api.post<ApiMessage>("/stations/create", { name,
-                latitude: Number(latitude), longitude: Number(longitude) });
+                latitude: Number(latitude), longitude: Number(longitude), code: shortcode });
             setName("");
             setLatitude("");
             setLongitude("");
+            setShortcode("");
             toast.success(response.data.message || "Created successfully");
             loadStations();
         } catch (err: unknown) {
@@ -124,6 +127,16 @@ export default function StationsPage() {
                                     placeholder="Station Name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="shortcode">Station Code</Label>
+                                <Input
+                                    id="shortcode"
+                                    type="text"
+                                    placeholder="Station Code"
+                                    value={shortcode}
+                                    onChange={(e) => setShortcode(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
