@@ -9,7 +9,7 @@ type Props = {
 };
 export default function ProtectedRoute({ children, role }: Props) {
     const router = useRouter();
-    const { user, hydrated,loadAuth,token } = useAuthStore();
+    const { user, hydrated,loadAuth,token } = useAuthStore();// from zustand store
     useEffect(() => {
         loadAuth();
     }, [loadAuth]);
@@ -22,7 +22,7 @@ export default function ProtectedRoute({ children, role }: Props) {
         return;
         }
 
-            if (role && user.role !== role) {
+        if (role && user.role !== role) {
         router.replace("/login");
     }
     }, [user, hydrated, token, role,router]);
