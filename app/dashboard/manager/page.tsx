@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Fuel, Activity } from "lucide-react";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
+import { useStationStore } from "@/store/managerStore";
 
 type ManagerStats = {
     stationId: string;
@@ -30,16 +31,18 @@ const defaultStats: ManagerStats = {
 
 export default function ManagerDashboard() {
     const [stats, setStats] = useState<ManagerStats>(defaultStats);
+    const setStationId = useStationStore((state) => state.setStationId);
 
     useEffect(() => {
         api.get("/manager/station-status")
             .then((res) => {
                 setStats(res.data ?? defaultStats);
+                setStationId(res.data.stationId);
             })
             .catch((err) => {
                 console.error("Error fetching manager stats:", err);
             });
-    }, []);
+    }, [setStationId]);
 
     return (
         <ProtectedRoute role="subAdmin">
@@ -60,15 +63,16 @@ export default function ManagerDashboard() {
                     </Card>
 
                     {/* Info card */}
-                    <Card className="border-border/70 bg-card/90">
+                    {!stats&&(<Card className="border-border/70 bg-card/90">
                         <CardContent className="flex items-center gap-3 p-6 text-sm text-muted-foreground">
                             <Activity className="h-4 w-4 text-primary" />
                             Your manager widgets will appear here.
                         </CardContent>
-                    </Card>
+                    </Card>)}
 
                     {/* Metrics */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                   {stats && (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
                         <MetricCard title="Station Id" value={stats.stationId} />
 
@@ -88,7 +92,7 @@ export default function ManagerDashboard() {
                             />
                         ))}
 
-                    </div>
+                    </div>)}
 
                 </div>
             </DashboardLayout>
