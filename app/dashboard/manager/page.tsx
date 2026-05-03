@@ -11,8 +11,10 @@ import { useStationStore } from "@/store/managerStore";
 
 type ManagerStats = {
     stationId: string;
+    stationName:string;
     fuels: {
         fuelType: string;
+        fuelTypeName:string
         quantity: number;
         isAvailable: boolean;
         updatedAt: string;
@@ -25,6 +27,7 @@ type ManagerStats = {
 
 const defaultStats: ManagerStats = {
     stationId: "",
+    stationName:"",
     fuels: [],
     bookings: [],
 };
@@ -32,12 +35,14 @@ const defaultStats: ManagerStats = {
 export default function ManagerDashboard() {
     const [stats, setStats] = useState<ManagerStats>(defaultStats);
     const setStationId = useStationStore((state) => state.setStationId);
+    const setStationName=useStationStore((state)=>state.setStationName);
 
     useEffect(() => {
         api.get("/manager/station-status")
             .then((res) => {
                 setStats(res.data ?? defaultStats);
                 setStationId(res.data.stationId);
+                setStationName(res.data.stationName);
             })
             .catch((err) => {
                 console.error("Error fetching manager stats:", err);

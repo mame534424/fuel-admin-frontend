@@ -13,6 +13,7 @@ import axios from "axios";
 import { Fuel, PlusCircle, RotateCcw, ShieldAlert, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type FuelType = {
     id: number;
@@ -57,12 +58,11 @@ export default function FuelPage() {
     const [stationStatus, setStationStatus] = useState<StationStatus>(emptyStationStatus);
     const [fuelTypes, setFuelTypes] = useState<FuelType[]>([]);
     const [createFuelTypeId, setCreateFuelTypeId] = useState("");
-    const [createQuantity, setCreateQuantity] = useState("");
     const [updateFuelTypeId, setUpdateFuelTypeId] = useState("");
     const [updateQuantity, setUpdateQuantity] = useState("");
     const [loading, setLoading] = useState(true);
-    const [creating, setCreating] = useState(false);
     const [updating, setUpdating] = useState(false);
+    const router = useRouter();
 
     const refreshStationData = async () => {
         if (!stationId) {
@@ -161,47 +161,7 @@ export default function FuelPage() {
             .filter((fuel) => fuel.id !== undefined) as { id: number; label: string }[];
     }, [stationStatus.fuels]);
 
-    const handleCreateFuel = async () => {
-        if (!stationId) {
-            toast.error("No station is assigned to this manager");
-            return;
-        }
-
-        const parsedFuelTypeId = Number(createFuelTypeId);
-        const parsedQuantity = Number(createQuantity);
-
-        if (!parsedFuelTypeId || Number.isNaN(parsedFuelTypeId)) {
-            toast.error("Select a fuel type");
-            return;
-        }
-
-        if (Number.isNaN(parsedQuantity) || parsedQuantity <= 0) {
-            toast.error("Enter a valid quantity");
-            return;
-        }
-
-        setCreating(true);
-
-        try {
-            const response = await api.post<ApiMessage>("/manager/station-fuel", {
-                stationId,
-                fuelTypeId: parsedFuelTypeId,
-                quantity: parsedQuantity,
-            });
-
-            toast.success(response.data.message || "Fuel added to station");
-            setCreateQuantity("");
-            await refreshStationData();
-        } catch (error) {
-            if (axios.isAxiosError<ApiMessage>(error)) {
-                toast.error(error.response?.data?.message || "Failed to create station fuel");
-            } else {
-                toast.error("Failed to create station fuel");
-            }
-        } finally {
-            setCreating(false);
-        }
-    };
+   
 
     const handleUpdateFuel = async () => {
         if (!stationId) {
@@ -250,85 +210,57 @@ export default function FuelPage() {
         <ProtectedRoute role="subAdmin">
             <DashboardLayout>
                 <div className="space-y-6">
-                    <Card className="fuel-canvas border-border/70 bg-card/85">
-                        <CardHeader className="space-y-4 md:flex md:flex-row md:items-end md:justify-between md:space-y-0">
-                            <div className="space-y-2">
-                                <CardTitle className="flex items-center gap-2 text-2xl tracking-tight">
-                                    <Fuel className="h-6 w-6 text-primary" />
-                                    Fuel Manager
-                                </CardTitle>
-                                <CardDescription>
-                                    Add fuel to your station, top up quantities, and keep inventory easy to manage.
-                                </CardDescription>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-3 py-1 text-primary">
-                                    Station: {stationStatus.stationName || "Loading station..."}
-                                </Badge>
-                                <Badge variant="outline" className="rounded-full px-3 py-1">
-                                    ID: {stationStatus.stationId || stationId || "N/A"}
-                                </Badge>
-                            </div>
-                        </CardHeader>
-                    </Card>
+                <Card className="fuel-canvas border-border/70 bg-card/85">
+                    <CardHeader className="space-y-4 md:flex md:flex-row md:items-end md:justify-between md:space-y-0">
+                        
+                        {/* LEFT SECTION */}
+                        <div className="space-y-2">
+                        <CardTitle className="flex items-center gap-2 text-2xl tracking-tight">
+                            <Fuel className="h-6 w-6 text-primary" />
+                            Fuel Manager
+                        </CardTitle>
+                        <CardDescription>
+                            Add fuel to your station, top up quantities, and keep inventory easy to manage.
+                        </CardDescription>
+                        </div>
+
+                        {/* RIGHT SECTION */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        
+                        {/* BADGES */}
+                        <div className="flex flex-wrap gap-2">
+                            <Badge
+                            variant="outline"
+                            className="rounded-full border-primary/20 bg-primary/5 px-3 py-1 text-primary"
+                            >
+                            Station: {stationStatus.stationName || "Loading station..."}
+                            </Badge>
+
+                            <Badge
+                            variant="outline"
+                            className="rounded-full px-3 py-1"
+                            >
+                            ID: {stationStatus.stationId || stationId || "N/A"}
+                            </Badge>
+                        </div>
+
+                        {/* NEW BUTTON */}
+                        <Button
+                            onClick={() => router.push("fuel/createfuel")}
+                            className="flex items-center gap-2 rounded-full px-4 py-2 shadow-sm transition-all duration-200 
+                                    hover:scale-[1.03] hover:shadow-md"
+                        >
+                            <PlusCircle className="h-4 w-4" />
+                            Add Fuel
+                        </Button>
+
+                        </div>
+
+                    </CardHeader>
+                </Card>
 
                     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-                        <Card className="border-border/70 bg-card/90 shadow-sm">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <PlusCircle className="h-5 w-5 text-primary" />
-                                    Add Station Fuel
-                                </CardTitle>
-                                <CardDescription>
-                                    Choose a fuel type from the dropdown and assign an initial quantity to your station.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="create-station-name">Station Name</Label>
-                                    <Input id="create-station-name" value={stationStatus.stationName || stationId || ""} disabled />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="create-fuel-type">Fuel Type</Label>
-                                    <select
-                                        id="create-fuel-type"
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                        value={createFuelTypeId}
-                                        onChange={(event) => setCreateFuelTypeId(event.target.value)}
-                                        disabled={loading || fuelTypes.length === 0}
-                                    >
-                                        <option value="">Select fuel type</option>
-                                        {fuelTypes.map((fuelType) => (
-                                            <option key={fuelType.id} value={fuelType.id}>
-                                                {fuelType.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="create-quantity">Quantity</Label>
-                                    <Input
-                                        id="create-quantity"
-                                        type="number"
-                                        min="0"
-                                        placeholder="Enter quantity"
-                                        value={createQuantity}
-                                        onChange={(event) => setCreateQuantity(event.target.value)}
-                                    />
-                                </div>
-                                <div className="md:col-span-2 flex items-center justify-between gap-3 rounded-lg border border-dashed border-border/70 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles className="h-4 w-4 text-primary" />
-                                        <span>Fuel types are loaded from the API for fast, accurate selection.</span>
-                                    </div>
-                                    <Button onClick={handleCreateFuel} disabled={creating || loading || !fuelTypes.length} className="gap-2">
-                                        <PlusCircle className="h-4 w-4" />
-                                        {creating ? "Adding..." : "Add Fuel"}
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-
+                        
                         <Card className="border-border/70 bg-card/90 shadow-sm">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
